@@ -11,7 +11,7 @@ Worker node is REST micorservice which runs on all nodes in cluster it has endpo
 and /addtask which initiate one of preloaded with /addclass classes and start tasl
 
 Client code is here:
-
+```
   public static void main(String[] args) {
         Cluster cluster = new Cluster();
         cluster.addNode("http://localhost:8383");
@@ -34,4 +34,4 @@ Client code is here:
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+```        
