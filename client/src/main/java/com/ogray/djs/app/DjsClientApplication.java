@@ -47,7 +47,7 @@ public class DjsClientApplication {
             addClassToCluster(cluster, MathTaskResponse.class);
 
             // executes remotely task
-            HashMap<String,Integer> result = cluster.addTask(new Math2Task(1,2));
+            HashMap<String,Integer> result = cluster.execTaskAsync(new Math2Task(1,2));
             for(String ip : result.keySet()) {
                 System.out.println("Result from ["+ip+"] is "+result.get(ip));
             }

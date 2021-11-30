@@ -1,18 +1,15 @@
 package com.ogray.djs.core.rest;
 
 import com.google.gson.Gson;
-import com.ogray.djs.model.AddClassRequest;
-import com.ogray.djs.model.AddClassResponse;
-import com.ogray.djs.model.AddTaskRequest;
-import com.ogray.djs.model.AddTaskResponse;
+import com.ogray.djs.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 
 @Slf4j
 public class RestManager {
 
-    public static AddTaskResponse addTask(String url, byte[] task, String className) throws Exception {
-        final String uri = url + "/addtask";
+    public static AddTaskResponse execTaskSync(String url, byte[] task, String className) throws Exception {
+        final String uri = url + "/exectasksync";
 
         AddTaskRequest request = new AddTaskRequest(className, task);
         JSONObject json = new JSONObject(request);
@@ -39,6 +36,21 @@ public class RestManager {
         log.info("AddClassResponse return: "+reply);
         Gson gson = new Gson();
         AddClassResponse obj = gson.fromJson(reply, AddClassResponse.class);
+        return obj;
+    }
+
+    public static AddAsyncTaskResponse execTaskAsync(String url, byte[] task, String className) throws Exception {
+        final String uri = url + "/exectaskasync";
+
+        AddAsyncTaskRequest request = new AddAsyncTaskRequest(className, task, "");
+        JSONObject json = new JSONObject(request);
+        String req = json.toString();
+        log.info("url=["+uri+"] request="+req);
+        String reply = RestClient.sendPostRequest(uri, req);
+
+        log.info("AddTaskResponse return: "+reply);
+        Gson gson = new Gson();
+        AddAsyncTaskResponse obj = gson.fromJson(reply, AddAsyncTaskResponse.class);
         return obj;
     }
 }

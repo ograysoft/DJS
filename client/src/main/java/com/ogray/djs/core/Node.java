@@ -2,6 +2,7 @@ package com.ogray.djs.core;
 
 import com.ogray.djs.core.rest.RestManager;
 import com.ogray.djs.core.task.DjsTask;
+import com.ogray.djs.model.AddAsyncTaskResponse;
 import com.ogray.djs.model.AddClassResponse;
 import com.ogray.djs.model.AddTaskResponse;
 import lombok.Getter;
@@ -23,12 +24,24 @@ public class Node {
      * Upload task to remote node
      * @param task
      */
-    public int addTask(DjsTask task) throws Exception {
+    public int execTaskSync(DjsTask task) throws Exception {
         byte[] byteTask = task.serialize();
 
-        AddTaskResponse response = RestManager.addTask(this.ip, byteTask, task.getClass().getCanonicalName());
+        AddTaskResponse response = RestManager.execTaskSync(this.ip, byteTask, task.getClass().getCanonicalName());
         return response.getStatus();
     }
+
+    /**
+     * Upload task to remote node
+     * @param task
+     */
+    public int execTaskAsync(DjsTask task) throws Exception {
+        byte[] byteTask = task.serialize();
+
+        AddAsyncTaskResponse response = RestManager.execTaskAsync(this.ip, byteTask, task.getClass().getCanonicalName());
+        return response.getStatus();
+    }
+
 
     /**
      * Upload task to remote node

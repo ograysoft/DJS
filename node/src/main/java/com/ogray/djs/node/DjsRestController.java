@@ -1,12 +1,9 @@
 package com.ogray.djs.node;
 
 
-import com.ogray.djs.core.task.DjsTask;
-import com.ogray.djs.model.AddClassRequest;
-import com.ogray.djs.model.AddClassResponse;
-import com.ogray.djs.model.AddTaskRequest;
-import com.ogray.djs.model.AddTaskResponse;
+import com.ogray.djs.model.*;
 import com.ogray.djs.node.utils.Utils;
+import com.ogray.djs.pool.RealNodeTask;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -78,13 +75,18 @@ public class DjsRestController {
         return new AddClassResponse(status);
     }
 
-    @PostMapping("/addtask")
+    /**
+     * Execute task synchronousely. Wait for finish and send results back
+     * @param requestData
+     * @param response
+     * @return AddTaskResponse task result
+     */
+    @PostMapping("/exectasksync")
     public AddTaskResponse addTask(@RequestBody AddTaskRequest requestData,
                                    HttpServletResponse response) {
-        log.info("addTask");
+        log.info("exectasksync");
 
         byte[] taskBin = Base64.getDecoder().decode( requestData.getData() );
-
         int status = 0;
         String result = null;
         try {
@@ -135,5 +137,76 @@ public class DjsRestController {
 
         response.setStatus(HttpStatus.OK.value());
         return new AddTaskResponse(status, result);
+    }
+
+    /**
+     * Execute task asynchronously. Upon finish call callback
+     * @param requestData
+     * @param response
+     * @return AddTaskResponse task result
+     */
+    @PostMapping("/exectaskasync")
+    public AddAsyncTaskResponse execTaskAsync(@RequestBody AddAsyncTaskRequest requestData,
+                                              HttpServletResponse response) {
+        log.info("execTaskAsync");
+
+        byte[] taskBin = Base64.getDecoder().decode( requestData.getData() );
+        int status = 0;
+        String result = null;
+        try {
+            String className = requestData.getClassName();
+            int idx = className.indexOf(".class");
+            if(idx>0) {
+                className = className.substring(0, idx);
+            }
+
+            log.info("className=" +className);
+            log.info("cp=" + System.getProperty("java.class.path"));
+
+            File file = new File(DjsApplication.classPoolPath);
+
+            // Convert File to a URL
+            URL url = file.toURI().toURL();
+            URL[] urls = new URL[]{url};
+
+            // Create a new class loader with the directory
+            ClassLoader cl = new URLClassLoader(urls);
+
+            Class cls = cl.loadClass(className);
+            log.info("loadClass ok for "+className);
+
+            log.info("superclass: " + cls.getAnnotatedSuperclass().toString());
+
+            Class[] cArg = new Class[1];
+            cArg[0] = byte[].class;
+            Method method = cls.getMethod("deserialize", cArg);
+            Object task = method.invoke(null, taskBin);
+
+            // DjsTask task = DjsTask.deserialize(taskBin);
+            log.info("deserialized task class:  "+task.getClass().getName());
+
+            //Object res = ((DjsTask)task).execute();
+           /* Method method1 = task.getClass().getMethod("execute", null);
+            Object res = method1.invoke(task, null);
+
+            if(res!=null)
+                result = res.toString();
+            else
+                result = "null";*/
+
+            Long taskId = Long.valueOf(1);
+           // Long taskId = DjsApplication.taskPool.addTask(new RealNodeTask(task));
+            response.setStatus(HttpStatus.OK.value());
+
+            DjsApplication.taskPool.executeJob(task, taskId, requestData.getCallback());
+            return new AddAsyncTaskResponse(0, taskId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            status = 1;
+        }
+
+        response.setStatus(HttpStatus.OK.value());
+        return new AddAsyncTaskResponse(status, null);
     }
 }

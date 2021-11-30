@@ -36,10 +36,23 @@ public class Cluster {
      * Upload task to all nodes in cluster
      * @param task
      */
-    public HashMap<String,Integer> addTask(DjsTask task) throws Exception {
+    public HashMap<String,Integer> execTaskSync(DjsTask task) throws Exception {
         HashMap<String,Integer> result = new HashMap<String,Integer>();
         for(Node node : nodes) {
-            int response = node.addTask(task);
+            int response = node.execTaskSync(task);
+            result.put(node.ip, response);
+        }
+        return result;
+    }
+
+    /**
+     * Upload async task to all nodes in cluster
+     * @param task
+     */
+    public HashMap<String,Integer> execTaskAsync(DjsTask task) throws Exception {
+        HashMap<String,Integer> result = new HashMap<String,Integer>();
+        for(Node node : nodes) {
+            int response = node.execTaskAsync(task);
             result.put(node.ip, response);
         }
         return result;
