@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 @Slf4j
 public class RestManager {
+    private static String callbackUrl = "http://localhost:8384/taskupdated";
 
     public static AddTaskResponse execTaskSync(String url, byte[] task, String className) throws Exception {
         final String uri = url + "/exectasksync";
@@ -42,7 +43,7 @@ public class RestManager {
     public static AddAsyncTaskResponse execTaskAsync(String url, byte[] task, String className) throws Exception {
         final String uri = url + "/exectaskasync";
 
-        AddAsyncTaskRequest request = new AddAsyncTaskRequest(className, task, "");
+        AddAsyncTaskRequest request = new AddAsyncTaskRequest(className, task, callbackUrl);
         JSONObject json = new JSONObject(request);
         String req = json.toString();
         log.info("url=["+uri+"] request="+req);

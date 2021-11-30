@@ -8,11 +8,14 @@ import com.ogray.djs.core.task.Math2Task;
 import com.ogray.djs.core.task.MathTaskParam;
 import com.ogray.djs.core.task.MathTaskResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.net.URL;
 import java.util.HashMap;
 
 @Slf4j
+@SpringBootApplication
 public class DjsClientApplication {
 
     /**
@@ -26,7 +29,7 @@ public class DjsClientApplication {
         className = className.replace('.', '/') + ".class";
 
         ClassLoader loader = cls.getClassLoader();
-        URL classFileName = loader.getResource(className);//"com/ogray/djs/core/task/DjsTask.class");
+        URL classFileName = loader.getResource(className);
         String classFileNamePath = classFileName.getPath().substring(1);
         System.out.println("classFileName= " + classFileNamePath);
         byte[] classBin = Utils.loadFile(classFileNamePath);
@@ -34,6 +37,8 @@ public class DjsClientApplication {
     }
 
     public static void main(String[] args) {
+        SpringApplication.run(DjsClientApplication.class, args);
+
         Cluster cluster = new Cluster();
         cluster.addNode("http://localhost:8383");
         // add other nodes here
@@ -41,10 +46,10 @@ public class DjsClientApplication {
 
         try {
             // upload Task class, superclass and arguments classes to cluster
-            addClassToCluster(cluster, DjsTask.class);
+         /*   addClassToCluster(cluster, DjsTask.class);
             addClassToCluster(cluster, Math2Task.class);
             addClassToCluster(cluster, MathTaskParam.class);
-            addClassToCluster(cluster, MathTaskResponse.class);
+            addClassToCluster(cluster, MathTaskResponse.class);*/
 
             // executes remotely task
             HashMap<String,Integer> result = cluster.execTaskAsync(new Math2Task(1,2));

@@ -38,7 +38,8 @@ public class Node {
     public int execTaskAsync(DjsTask task) throws Exception {
         byte[] byteTask = task.serialize();
 
-        AddAsyncTaskResponse response = RestManager.execTaskAsync(this.ip, byteTask, task.getClass().getCanonicalName());
+        AddAsyncTaskResponse response = RestManager.execTaskAsync(this.ip,
+                byteTask, task.getClass().getCanonicalName());
         return response.getStatus();
     }
 
