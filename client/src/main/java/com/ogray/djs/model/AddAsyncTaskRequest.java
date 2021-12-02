@@ -1,4 +1,4 @@
-package com.ogray.djs.app;
+package com.ogray.djs.model;
 
 /**
  * 	Copyright (C) 2021 Sergey A. Salata. All rights reserved.
@@ -17,22 +17,26 @@ package com.ogray.djs.app;
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import com.ogray.djs.model.*;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.tomcat.util.codec.binary.Base64;
 
-import org.springframework.web.bind.annotation.*;
-
-
-@CrossOrigin
-@RestController
-@Slf4j
 @AllArgsConstructor
-public class DjsRestController {
-    private com.ogray.djs.app.service.DJSService DJSService;
+public class AddAsyncTaskRequest {
+    @Setter
+    @Getter
+    String className;
 
-    @PostMapping("/taskupdated")
-    public void TaskUpdated(@RequestBody CallbackInfo requestData) {
-        log.info("TaskUpdated "+requestData);
+    @Setter @Getter
+    String data;
+
+    @Setter @Getter
+    String callback;
+
+    public AddAsyncTaskRequest(String className, byte[] data, String callback) {
+        this.className = className;
+        this.data = Base64.encodeBase64String(data);
+        this.callback = callback;
     }
 }
